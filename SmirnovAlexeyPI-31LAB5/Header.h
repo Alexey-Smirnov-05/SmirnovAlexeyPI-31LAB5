@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <iostream>
+#include <string>
+
+using namespace std;
 
 // Класс для хранения информации о треке
 class Track {
@@ -20,6 +24,17 @@ public:
     void setTitle(const char* title) {
         strcpy(this->title, title);
     }
+
+    // Перегрузка оператора ==
+    bool operator==(const Track& other) const {
+        return strcmp(this->title, other.title) == 0;
+    }
+
+    // Дружественная функция для вывода информации о треке
+    friend ostream& operator<<(ostream& os, const Track& track) {
+        os << track.title;
+        return os;
+    }
 };
 
 // Класс для хранения плейлиста
@@ -28,18 +43,28 @@ private:
     Track* tracks;
     int total_number_of_tracks;
     int current_track;
+    static int instance_count; // Статическое поле
 public:
     Playlist() : total_number_of_tracks(0), current_track(0) {
         tracks = new Track[1];
+        instance_count++;
     }
+
     ~Playlist() {
         delete[] tracks;
+        instance_count--;
     }
+
+    static int getInstanceCount() { // Статический метод
+        return instance_count;
+    }
+
     void viewSongs() {
         for (int i = 0; i < total_number_of_tracks; i++) {
-            printf("%d. %s\n", i + 1, tracks[i].getTitle());
+            cout << i + 1 << ". " << tracks[i] << endl;
         }
     }
+
     void addSong(const Track& song) {
         Track* newTracks = new Track[total_number_of_tracks + 1];
         for (int i = 0; i < total_number_of_tracks; i++) {
@@ -50,6 +75,7 @@ public:
         tracks = newTracks;
         total_number_of_tracks++;
     }
+
     void removeSong(int index) {
         for (int i = index; i < total_number_of_tracks - 1; i++) {
             tracks[i] = tracks[i + 1];
@@ -62,40 +88,65 @@ public:
         delete[] tracks;
         tracks = newTracks;
     }
+
+    void getSongByIndex(int index, Track*& song) { // Возврат через указатель
+        if (index >= 0 && index < total_number_of_tracks) {
+            song = &tracks[index];
+        }
+        else {
+            song = nullptr;
+        }
+    }
+
+    void getSongByIndex(int index, Track& song) { // Возврат через ссылку
+        if (index >= 0 && index < total_number_of_tracks) {
+            song = tracks[index];
+        }
+    }
+
     int getTotalNumberOfTracks() {
         return total_number_of_tracks;
     }
+
     Track* getTracks() {
         return tracks;
     }
+
     int getCurrentTrack() {
         return current_track;
     }
+
     void setCurrentTrack(int current_track) {
         this->current_track = current_track;
     }
+
     void load_tracks_from_file(const char* filename) {
         FILE* file = fopen(filename, "r");
         if (file == NULL) {
+            // Если файл не найден, создаем его
+            file = fopen(filename, "w");
+            if (file == NULL) {
+                throw runtime_error("Ошибка создания файла");
+            }
+            fclose(file);
             return;
         }
 
         char line[100];
-        int i = 0;
         while (fgets(line, sizeof(line), file)) {
             line[strcspn(line, "\n")] = 0;
             Track song;
             song.setTitle(line);
             addSong(song);
-            i++;
         }
 
         fclose(file);
     }
+
     void save_tracks_to_file(const char* filename) {
         FILE* file = fopen(filename, "w");
         if (file == NULL) {
-            return;
+            throw runtime_error("Ошибка открытия файла");
         }
 
         for (int i = 0; i < total_number_of_tracks; i++) {
@@ -105,6 +156,8 @@ public:
         fclose(file);
     }
 };
+
+int Playlist::instance_count = 0;
 
 // Класс для демонстрации признака ассоциаций
 class User {
