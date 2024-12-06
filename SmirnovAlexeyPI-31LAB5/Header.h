@@ -6,28 +6,29 @@
 #include <locale.h>
 #include <iostream>
 #include <string>
+#include <fstream> 
 
 using namespace std;
 
 // Класс для хранения информации о треке
 class Track {
 private:
-    char title[100];
+    std::string title; // Используем std::string вместо char[]
 public:
     Track() {}
-    Track(const char* title) {
-        strcpy(this->title, title);
-    }
-    char* getTitle() {
+    Track(const std::string& title) : title(title) {}
+
+    std::string getTitle() const {
         return title;
     }
-    void setTitle(const char* title) {
-        strcpy(this->title, title);
+
+    void setTitle(const std::string& title) {
+        this->title = title;
     }
 
     // Перегрузка оператора ==
     bool operator==(const Track& other) const {
-        return strcmp(this->title, other.title) == 0;
+        return this->title == other.title;
     }
 
     // Дружественная функция для вывода информации о треке
@@ -121,39 +122,37 @@ public:
     }
 
     void load_tracks_from_file(const char* filename) {
-        FILE* file = fopen(filename, "r");
-        if (file == NULL) {
+        std::ifstream file(filename);
+        if (!file) {
             // Если файл не найден, создаем его
-            file = fopen(filename, "w");
-            if (file == NULL) {
+            std::ofstream newFile(filename); // Создаем новый пустой файл
+            if (!newFile) {
                 throw runtime_error("Ошибка создания файла");
             }
-            fclose(file);
             return;
         }
 
-        char line[100];
-        while (fgets(line, sizeof(line), file)) {
-            line[strcspn(line, "\n")] = 0;
+        std::string line;
+        while (std::getline(file, line)) {
             Track song;
             song.setTitle(line);
             addSong(song);
         }
 
-        fclose(file);
+        file.close();
     }
 
     void save_tracks_to_file(const char* filename) {
-        FILE* file = fopen(filename, "w");
-        if (file == NULL) {
+        std::ofstream file(filename);
+        if (!file) {
             throw runtime_error("Ошибка открытия файла");
         }
 
         for (int i = 0; i < total_number_of_tracks; i++) {
-            fprintf(file, "%s\n", tracks[i].getTitle());
+            file << tracks[i].getTitle() << '\n'; // Записываем строки в файл
         }
 
-        fclose(file);
+        file.close();
     }
 };
 
@@ -186,10 +185,10 @@ public:
     void changeVolume(int new_volume) {
         if (new_volume >= 0 && new_volume <= 100) {
             volume = new_volume;
-            printf("Громкость изменена на %d%%\n", volume);
+            cout << ("Громкость изменена на %d%%\n", volume);
         }
         else {
-            printf("Неверная громкость\n");
+            cout << ("Неверная громкость\n");
         }
     }
 };
@@ -202,8 +201,8 @@ private:
 public:
     Playback(Playlist* playlist, int current_track) : playlist(playlist), current_track(current_track) {}
     void playSong() {
-        printf("Сейчас играет: %s\n", playlist->getTracks()[current_track].getTitle());
-    }
+        cout << "Сейчас играет: " << playlist->getTracks()[current_track].getTitle() << endl;
+}
 };
 
 // Класс для хранения паузы
@@ -213,7 +212,7 @@ private:
 public:
     Pause(Playlist* playlist) : playlist(playlist) {}
     void pauseSong() {
-        printf("На паузе\n");
+        cout << ("На паузе\n");
     }
 };
 
@@ -251,7 +250,7 @@ public:
     View(Playlist* playlist) : playlist(playlist) {}
     void viewSongs() {
         for (int i = 0; i < playlist->getTotalNumberOfTracks(); i++) {
-            printf("%d. %s\n", i + 1, playlist->getTracks()[i].getTitle());
+            cout << ("%d. %s\n", i + 1, playlist->getTracks()[i].getTitle());
         }
     }
 };

@@ -12,28 +12,25 @@ int main() {
 
     int choice;
     while (1) {
-        printf("Меню плеера:\n");
-        printf("0. Добавить трек\n");
-        printf("1. Изменить громкость\n");
-        printf("2. Воспроизвести\n");
-        printf("3. Пауза\n");
-        printf("4. Следующий трек\n");
-        printf("5. Предыдущий трек\n");
-        printf("6. Удалить трек\n");
-        printf("7. Просмотреть треки в плейлисте\n");
-        printf("8. Выход\n");
-        printf("Действие: ");
+        cout << ("Меню плеера:\n");
+        cout << ("0. Добавить трек\n");
+        cout << ("1. Изменить громкость\n");
+        cout << ("2. Воспроизвести\n");
+        cout << ("3. Пауза\n");
+        cout << ("4. Следующий трек\n");
+        cout << ("5. Предыдущий трек\n");
+        cout << ("6. Удалить трек\n");
+        cout << ("7. Просмотреть треки в плейлисте\n");
+        cout << ("8. Выход\n");
+        cout << ("Действие: ");
         scanf("%d", &choice);
 
         switch (choice) {
         case 0: {
             Track song;
-            printf("Введите название трека: ");
-            int c;
-            while ((c = getchar()) != '\n' && c != EOF);
-            char title[100];
-            fgets(title, 100, stdin);
-            title[strcspn(title, "\n")] = 0;
+            cout << "Введите название трека: ";
+            std::string title;
+            std::getline(cin >> std::ws, title); // Читаем строку с названием трека
             song.setTitle(title);
             user.addSongToPlaylist(song);
             playlist.save_tracks_to_file("playlist.txt");
@@ -41,7 +38,7 @@ int main() {
         }
         case 1: {
             int new_volume;
-            printf("Введите громкость (0-100): ");
+            cout << ("Введите громкость (0-100): ");
             scanf("%d", &new_volume);
             volume.changeVolume(new_volume);
             break;
@@ -52,7 +49,7 @@ int main() {
                 playback.playSong();
             }
             else {
-                printf("Нет треков в плейлисте\n");
+                cout << "Нет треков в плейлисте\n";
             }
             break;
         case 3:
@@ -61,7 +58,7 @@ int main() {
                 pause.pauseSong();
             }
             else {
-                printf("Нет треков в плейлисте\n");
+                cout << ("Нет треков в плейлисте\n");
             }
             break;
         case 4:
@@ -70,7 +67,7 @@ int main() {
                 skip.skipSong();
             }
             else {
-                printf("Нет треков в плейлисте\n");
+                cout << "Нет треков в плейлисте\n";
             }
             break;
         case 5:
@@ -79,42 +76,37 @@ int main() {
                 previous.previousSong();
             }
             else {
-                printf("Нет треков в плейлисте\n");
+                cout << ("Нет треков в плейлисте\n");
             }
             break;
         case 6: {
             if (playlist.getTotalNumberOfTracks() > 0) {
                 int index;
-                printf("Введите индекс трека для удаления: ");
+                cout << ("Введите индекс трека для удаления: ");
                 scanf("%d", &index);
                 if (index >= 1 && index <= playlist.getTotalNumberOfTracks()) {
                     playlist.removeSong(index - 1);
                     playlist.save_tracks_to_file("playlist.txt"); // Сохраняем изменения в файле
                 }
                 else {
-                    printf("Неверный индекс\n");
+                    cout << ("Неверный индекс\n");
                 }
             }
             else {
-                printf("Нет треков в плейлисте\n");
+                cout << ("Нет треков в плейлисте\n");
             }
             break;
         }
         case 7:
-            if (playlist.getTotalNumberOfTracks() > 0) {
-                View view(&playlist);
-                view.viewSongs();
-            }
-            else {
-                printf("Нет треков в плейлисте\n");
-            }
+            cout << "Список треков:\n";
+            user.viewPlaylist();
             break;
         case 8:
             return 0;
         default:
-            printf("Ошибка выбора действия\n");
+            cout << "Ошибка выбора действия\n";
         }
-        printf("\n\n");
+        cout << ("\n\n");
     }
     return 0;
 }
