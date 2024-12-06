@@ -51,6 +51,36 @@ public:
         instance_count++;
     }
 
+    // Конструктор копии
+    Playlist(const Playlist& other) {
+        total_number_of_tracks = other.total_number_of_tracks;
+        current_track = other.current_track;
+
+        // Создаем новый массив и копируем данные
+        tracks = new Track[total_number_of_tracks];
+        for (int i = 0; i < total_number_of_tracks; i++) {
+            tracks[i] = other.tracks[i];
+        }
+    }
+
+    // Перегрузка оператора присваивания
+    Playlist& operator=(const Playlist& other) {
+        if (this != &other) {
+            // Удаляем старый массив
+            delete[] tracks;
+
+            total_number_of_tracks = other.total_number_of_tracks;
+            current_track = other.current_track;
+
+            // Создаем новый массив и копируем данные
+            tracks = new Track[total_number_of_tracks];
+            for (int i = 0; i < total_number_of_tracks; i++) {
+                tracks[i] = other.tracks[i];
+            }
+        }
+        return *this;
+    }
+
     ~Playlist() {
         delete[] tracks;
         instance_count--;
@@ -156,7 +186,7 @@ public:
     }
 };
 
-int Playlist::instance_count = 0;
+int Playlist::instance_count = 0; // Инициализация статического поля
 
 // Класс для демонстрации признака ассоциаций
 class User {
