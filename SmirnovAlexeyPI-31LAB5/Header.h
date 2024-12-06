@@ -249,8 +249,13 @@ private:
 public:
     View(Playlist* playlist) : playlist(playlist) {}
     void viewSongs() {
+        if (playlist->getTotalNumberOfTracks() == 0) {
+            cout << "Нет треков в плейлисте\n";
+            return;
+        }
+        cout << "Список треков:\n";
         for (int i = 0; i < playlist->getTotalNumberOfTracks(); i++) {
-            cout << ("%d. %s\n", i + 1, playlist->getTracks()[i].getTitle());
+            cout << i + 1 << ". " << playlist->getTracks()[i].getTitle() << endl;
         }
     }
 };

@@ -97,10 +97,11 @@ int main() {
             }
             break;
         }
-        case 7:
-            cout << "Список треков:\n";
-            user.viewPlaylist();
-            break;
+        case 7:{
+            View view(&playlist);
+            view.viewSongs();
+            break; 
+        }
         case 8:
             return 0;
         default:
